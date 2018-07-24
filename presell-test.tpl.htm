@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html;charset=utf-8" http-equiv="Content-Type" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta http-equiv="X-UA-Compatible" content="<?php echo X_UA_COMPATIBLE; ?>" />
+<meta name="renderer" content="webkit" />
+<title>WeGene - 个人遗传基因检测服务平台</title>
+<meta name="keywords" content="<?php echo $this->_meta_keywords; ?>" />
+<meta name="description" content="<?php echo $this->_meta_description; ?>"  />
+<base href="<?php echo base_url();?>/<?php if (get_setting('url_rewrite_enable') != 'Y') { ?><?php echo G_INDEX_SCRIPT; ?><?php } ?>" /><!--[if IE]></base><![endif]-->
+<link href="<?php echo G_STATIC_URL; ?>/dist/img/favicon.ico?v=<?php echo G_VERSION_BUILD; ?>" rel="shortcut icon" type="image/x-icon" />
+
+<?php $post_hash_var_name = strtoupper(md5(time() . $this->userinfo['salt'])); ?>
+<script type="text/javascript">
+    var _<?php echo $post_hash_var_name; ?>="<?php echo new_post_hash(); ?>";
+    var G_POST_HASH=_<?php echo $post_hash_var_name; ?>;
+    var G_INDEX_SCRIPT = "<?php if (get_setting('url_rewrite_enable') != 'Y') echo G_INDEX_SCRIPT; ?>";
+    var G_SITE_NAME = "<?php echo addcslashes(get_setting('site_name'), '\"'); ?>";
+    var G_BASE_URL = "<?php echo base_url(); if (get_setting('url_rewrite_enable') != 'Y') { ?>/<?php echo rtrim(G_INDEX_SCRIPT, '/'); } ?>";
+    var G_STATIC_URL = "<?php echo G_STATIC_URL; ?>";
+    var G_UPLOAD_URL = "<?php echo get_setting('upload_url'); ?>";
+    var G_USER_ID = "<?php echo $this->user_id; ?>";
+    var G_MOBILE_VALID = "<?php echo $this->user_info['mobile_valid']; ?>";
+    var G_UPLOAD_ENABLE = "<?php echo get_setting('upload_enable'); ?>";
+    var G_CAN_CREATE_TOPIC = "<?php echo $this->user_info['permission']['create_topic']; ?>";
+	var G_COUNT_VOTE_INFO = '<?php echo $this->count_vote; ?>';
+	var G_USER_VOTE_INFO = '<?php echo $this->user_vote; ?>';
+	var G_UNIQUE_ID = '<?php echo $this->unique_id; ?>';
+	var G_COOKIE_PREFIX = "<?php echo G_COOKIE_PREFIX; ?>";
+	var G_COOKIE_DOMAIN = "<?php echo G_COOKIE_DOMAIN; ?>";
+</script>
+<style type="text/css">
+	/*common*/
+	* {
+		margin: 0;
+		padding: 0;
+		font-weight: 100;
+	}
+	html {
+		font-size: 75px;
+	}
+	.font-weight-bold {
+		font-weight: 300;
+	}
+	.color-green {
+		color: #85E8BF !important;
+	}
+	.mod-body.img{
+		padding: 0 0.8rem;
+	}
+	.font-size-30 {
+		font-size: 0.8rem;
+	}
+	.color-fff {
+		color: #fff;
+	}
+	.text-center {
+		text-align: center;
+	}
+	.margin-top-15 {
+		margin-top: 0.4rem;
+	}
+	.margin-0 {
+		margin: 0px !important;
+	}
+	.skew-bg {
+		position: absolute;
+		top: 0;
+		left: 0;
+		width: 100%;
+		height: 100%;
+		transform:skewY(10deg);
+	}
+	.pull-right {
+		float: right;
+	}
+	.pull-left {
+		float: left;
+	}
+	.clearfix {
+		clear: both;
+		overflow: hidden;
+	}
+	/* style */
+	li {
+		list-style: none;
+	}
+	/* mod-one */
+	.presell-head {
+		position: relative;
+		padding: 0.533333rem;
+		z-index: 2;
+	}
+	.presell-bg {
+		position: absolute;
+		top: 0;
+		right: 0;
+		z-index: 1;
+	}
+	.title {
+		margin-bottom: 0.666667rem;
+	}
+	.title h2 {
+		margin-top: 0.266667rem;
+		line-height: 1.6rem;
+		font-size: 1.6rem;
+	}
+	.title h1 {
+		margin-top: 0.266667rem;
+		line-height: 0.8rem;
+		font-size: 0.8rem;
+	}
+	.content {
+		position: relative;
+		z-index: 2;
+		font-size: 0.373333rem;
+	}
+	.content .presell-box {
+		padding: 0.666667rem 0.666667rem 0.8rem;
+		color: #fff;
+	}
+	.content .presell-box img {
+		display: block;
+		width: 4.0rem;
+		height: 1.333333rem;
+		margin-top: 0.4rem;
+	}
+	.content .presell-box ul li {
+		line-height: 0.586667rem;
+	}
+	.content .presell-box p {
+		margin: 0.533333rem 0 0.133333rem 0.266667rem;
+	}
+	.content .item {
+		line-height: 0.746667rem;
+		margin-bottom: 1.866667rem;
+		color: #fff;
+	}
+	.content .item ul li {
+		margin-top: 0.8rem;
+	}
+	.content .item h2{
+		margin-bottom: 0.266667rem;
+		font-size: 0.8rem;
+		color: #85E8BF;
+	}
+	.mod-one {
+		position: relative;
+	}
+	.mod-one .skew-bg{
+		margin-top: -0.933333rem;
+		background: linear-gradient(0deg,#3A467E,#4D4981);
+		z-index: 1;
+	}
+	/* mod-two */
+	.mod-two {
+		position: relative;
+		margin-top: -1.6rem;
+		padding-bottom: 1.333333rem;
+		background: #3A467E; 
+	}
+	.mod-two .skew-bg {
+		margin: -1.6rem 0 -2.666667rem;
+		background: linear-gradient(0deg,#3A467E,#4D4981);
+	}
+	.mod-two .mod {
+		position: relative;
+		margin-bottom: 1.2rem;
+		z-index: 3;
+	}
+	.mod-two .mod-head {
+		margin-bottom: 1.066667rem;
+		overflow: hidden;
+	}
+	.mod-two .mod-body {
+		padding: 0 0.533333rem;
+	}
+	.mod-two .mod-body .img{
+		padding: 0 0.533333rem;
+	}
+	.mod-two .mod-body .content h3{
+		margin-bottom: 0.4rem;
+		text-align: center;
+		font-size: 0.426667rem;
+		font-weight: 300;
+		color: #fff;
+	}
+	.mod-two .mod-body .content .table {
+		border: 1px solid rgba(255,255,2550,.3);
+	}
+	.mod-two .mod-body .content .table.green {
+		border: 1px solid #85E8BF;
+	}
+	.mod-two .mod-body .content ul li{
+		margin-bottom: 1.066667rem;
+	}
+	dl {
+		display: flex;
+		padding: 0.266667rem;
+		align-items: center;
+		color: #fff;
+		border-bottom: 1px solid rgba(255,255,2550,.3);
+		font-size: 0.32rem;
+		line-height: 0.453333rem;
+	}
+	dl:last-child {
+		border: none;
+	}
+	dl:nth-child(odd) {
+		background: rgba(255,255,255,0.05);
+	}
+	dl dt {
+	}
+	dl dd {
+		flex:1;
+		padding-left: 1.333333rem;
+		text-align: right;
+		opacity: .8;
+	}
+	.mod-two ul {
+		margin-bottom: 0.4rem;
+	}
+	.mod-two ul li {
+		line-height: 0.64rem;
+		font-size: 0.373333rem;
+		color: #fff;
+	}
+	.mod-two .mod-footer {
+		margin: 1.066667rem 0 1.333333rem;
+		font-size: 0.32rem;
+		color: #fff;
+	}
+	.fixed {
+		position: fixed;
+		bottom: 0;
+		left: 0;
+		height: 2.133333rem;
+		line-height: 2.133333rem;
+		width: 100%;
+		z-index: 5;
+		background:rgba(39,55,77,0.9);
+	}
+	.fixed img {
+		height: 1.333333rem;
+		width: 4.586667rem;
+		margin-top: 0.4rem;
+	}
+</style>
+</head>
+<body>
+	<div id="app" class="presell">
+	    <div class="mod-one">
+	    	<div class="skew-bg"></div>
+	    	<div class="presell-head">
+		    	<img class="presell-bg" src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/banner-bg.png" width="95%" />
+		    	<div class="title">
+		    		<img src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/logo.svg" />
+		    		<h1 class="font-weight-bold color-green">全基因组测序菁英版</h1>
+		    		<h2 class="font-weight-bold color-green">预售</h2>
+		    	</div>
+		    	<div class="content">
+		    		<div class="presell-box">
+			    		<ul>
+				    		<li>· BGI自主研发技术</li>
+							<li>· 30亿个全基因位点</li>
+							<li>· 600+遗传项目</li>
+							<li>· 永久更新</li>
+				    	</ul>
+				    	<p class="color-green">预售价</p>
+				    	<span class="color-green font-size-30">￥2,999</span>
+				    	<a href=""><img src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/btn-presell.png" /></a>
+			    	</div>
+			    	<p class="color-fff text-center margin-top-15">2018年6月1日 正式发售</p>
+			    	<div class="item">
+			    		<ul>
+			    			<li>
+			    				<h2>赠送</h2>
+			    				<div>
+			    					预售期间，<br />
+									购买 WeGene 全基因组测序菁英版<br />
+									赠送美年高端定制体检套餐 <span class="color-green">（价值￥2,399）</span>
+								</div>
+			    			</li>
+			    			<li>
+			    				<h2>须知</h2>
+			    				<div>
+			    					<p>1. 赠送的体检套餐会在 WeGene 全基因组测序菁英版发售后同时发货。</p>
+			    					<p>2. 实际顺序以付款时间为准，详见订单信息。</p>
+									<p>3. 预售商品不可申请退款。</p>
+			    				</div>
+			    			</li>
+			    			<li>
+			    				<h2>预售时间</h2>
+			    				<p>2018年4月8日 - 2018年5月31日</p>
+			    			</li>
+			    		</ul>
+			    	</div>
+		    	</div>
+		    </div>
+	    </div>
+	    <div class="mod-two">
+	    	<div class="skew-bg"></div>
+	    	<div class="mod">
+	    		<div class="mod-head">
+	    			<img class="pull-right" src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/title-1.svg" />
+	    		</div>
+	    		<div class="mod-body">
+	    			<div class="content">
+	    				<img src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/list.svg" width="100%" />
+	    			</div>
+	    		</div>
+	    	</div>
+	    	<div class="mod">
+	    		<div class="mod-head">
+	    			<img class="pull-left" src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/title-2.svg" />
+	    		</div>
+	    		<div class="mod-body">
+	    			<div class="content">
+	    				<ul>
+	    					<li>
+	    						<h3>WeGene 标准检测</h3>
+	    						<div class="table">
+	    							<dl>
+		    							<dt>检测范围</dt>
+		    							<dd>
+		    								<p>约1000万 </p>
+		    								<p>备注：含60万个基础位点，以及约940万个基于基础位点计算得出的基因型填
+		    								补位点（Imputation）</p>
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>检测方式</dt>
+		    							<dd>
+		    								定制芯片检测
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>适合人群</dt>
+		    							<dd>
+		    								希望了解自己的遗传特性和潜在健康风险的一般人群
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>产品特点</dt>
+		    							<dd>
+		    								采用进口定制芯片，专为东亚人群设计
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>解读项目</dt>
+		    							<dd>
+		    								<p>基础遗传项目 </p>第三方解读
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>提供原始数据</dt>
+		    							<dd>
+		    								1000万个
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>配套服务</dt>
+		    							<dd>无</dd>
+		    						</dl>
+	    						</div>
+	    					</li>
+	    					<li>
+	    						<h3 class="color-green">WeGene 全基因组测序菁英版</h3>
+	    						<div class="table green">
+	    							<dl>
+		    							<dt>检测范围</dt>
+		    							<dd>
+		    								30亿
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>检测方式</dt>
+		    							<dd>
+		    								全基因组测序
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>适合人群</dt>
+		    							<dd>
+		    								关注遗传性疾病，希望获得更多遗传解读项目的人群 对分子人类学感兴趣的人群
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>产品特点</dt>
+		    							<dd>
+		    								采用华大基因自主研发的高通量测序仪，高性价比之选
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>解读项目</dt>
+		    							<dd>
+		    								<p>基础遗传项目 </p><p>无限精准解读项目 </p>第三方解读
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>提供原始数据</dt>
+		    							<dd>
+		    								???
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>配套服务</dt>
+		    							<dd>无</dd>
+		    						</dl>
+	    						</div>
+	    					</li>
+	    					<li>
+	    						<h3>WeGene 全基因组测序</h3>
+	    						<div class="table">
+	    							<dl>
+		    							<dt>检测范围</dt>
+		    							<dd>
+		    								30亿
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>检测方式</dt>
+		    							<dd>
+		    								全基因组测序
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>适合人群</dt>
+		    							<dd>
+		    								有家族遗传疾病，希望了解自身遗传病风险的人群 希望得到完整的遗传数据，获得更多高端遗传服务的人群
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>产品特点</dt>
+		    							<dd>
+		    								采用Illumina进口的高通量测序仪
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>解读项目</dt>
+		    							<dd>
+		    								<p>基础遗传项目 </p><p>无限精准解读项目 </p>第三方解读
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>提供原始数据</dt>
+		    							<dd>
+		    								???
+		    							</dd>
+		    						</dl>
+		    						<dl>
+		    							<dt>配套服务</dt>
+		    							<dd>无</dd>
+		    						</dl>
+	    						</div>
+	    					</li>
+	    				</ul>
+	    			</div>
+	    		</div>
+	    	</div>
+	    	<div class="mod">
+	    		<div class="mod-head">
+	    			<img class="pull-right" src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/title-3.svg" />
+	    		</div>
+	    		<div class="mod-body img">
+	    			<img src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/features.svg" width="100%" />
+	    		</div>
+	    	</div>
+	    	<div class="mod">
+	    		<div class="mod-head">
+	    			<img class="pull-left" src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/title-4.svg" />
+	    		</div>
+	    		<div class="mod-body">
+	    			<ul>
+	    				<li>·  自主知识产权的测序平台</li>
+						<li>·  由战略合作伙伴华大基因提供 顶尖技术支持</li>
+						<li>·  大规模高通量自动化的全基因组测序实验室</li>
+						<li>·  领先的数据存储技术和分析算法</li>
+	    			</ul>
+	    			<div class="img">
+	    				<img class="" src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/machine.png" width="276px" />
+	    			</div>
+	    		</div>
+	    		<div class="mod-footer text-center">
+	    			活动最终解释权归微基因所有
+	    		</div>
+	    	</div>
+	    </div>
+	    <div class="fixed text-center">
+	    	<a href="">
+	    		<img src="<?php echo G_STATIC_URL; ?>/dist/new/events/presell/btn-buy.png" />
+	    	</a>
+	    </div>
+	</div>
+	<div id="aw-ajax-box"></div>
+
+    <script src="<?php echo G_STATIC_URL; ?>/js/jquery.2.js"></script>
+    <script src="<?php echo G_STATIC_URL; ?>/js/flexible.min.js"></script>
+    <script src="<?php echo G_STATIC_URL; ?>/js/vue.min.js"></script>
+    <script>
+    
+
+	var loading_timer,
+		loading_bg_count = 0;
+
+	function aws_loading(type, fullscreen)
+	{
+		if (!$('#aw-loading').length)
+	    {
+	        $('#aw-ajax-box').append('<div id="aw-loading" class="hide"><div id="aw-loading-box"></div></div>');
+	    }
+
+		if (fullscreen)
+		{
+			$('#aw-ajax-box').append('<div class="modal-backdrop fade in"></div>');
+		}
+
+		if (type == 'show')
+		{
+			if ($('#aw-loading').css('display') == 'block')
+		    {
+			    return false;
+		    }
+
+			$('#aw-loading').fadeIn();
+
+			loading_timer = setInterval(function ()
+			{
+				loading_bg_count++;
+
+				$('#aw-loading-box').css('background-position', '0px ' + loading_bg_count * - 70 + 'px');
+
+				if (loading_bg_count == 22)
+				{
+					loading_bg_count = 0;
+				}
+			}, 100);
+		}
+		else
+		{
+			$('#aw-loading').fadeOut();
+
+			if (fullscreen)
+			{
+				$('.modal-backdrop').detach();
+			}
+
+			clearInterval(loading_timer);
+		}
+	}
+    </script>
+
+    <?php if (in_weixin()) { ?>
+	<script src="https://res.wx.qq.com/open/js/jweixin-1.0.0.js"></script>
+	<script>
+		$(function ()
+		{
+			init_wx_api();
+		});
+
+		function init_wx_api()
+		{
+
+
+
+
+			var wx_timestamp = <?php echo TIMESTAMP; ?>,
+				wx_title = '<?php echo $this->name; ?>的出厂设置竟然是...- 微基因',
+				wx_desc = '解读基因的秘密，遇见未来的自己',
+				WEIXIN_IMG_COVER = '<?php echo G_STATIC_URL; ?>/dist/new/m/overview/share-logo.png',
+				share_url = 'http://www.wegene.com/report2/overview/?shareid=<?php echo $this->share_id;?>';
+
+			$.post(G_BASE_URL + '/share/ajax/get_weixin_share_signature/', {
+				timestamp: wx_timestamp,
+				uri: window.location.href
+			}, function (share_token)
+			{
+				var nonceStr = share_token.noncestr,
+					signature = share_token.signature;
+
+				if (typeof (share_token.signature) == 'undefined')
+				{
+					return false;
+				}
+
+				wx.config({
+					debug: false,
+					appId: '<?php echo get_setting('weixin_app_id'); ?>',
+					timestamp: wx_timestamp,
+					nonceStr: nonceStr,
+					signature: signature,
+					jsApiList: [
+						'checkJsApi',
+						'onMenuShareTimeline',
+						'onMenuShareAppMessage',
+						'onMenuShareQQ',
+						'onMenuShareQZone',
+						'scanQRCode'
+					]
+				});
+
+				wx.ready(function ()
+				{
+					wx.checkJsApi({
+						jsApiList: ["onMenuShareTimeline", "onMenuShareAppMessage", "onMenuShareQQ", "onMenuShareQZone"],
+						success: function() {
+							// 朋友圈
+							wx.onMenuShareTimeline({
+								title: wx_title,
+								desc: wx_desc,
+								link: share_url,
+								imgUrl: WEIXIN_IMG_COVER
+							});
+
+							// 朋友
+							wx.onMenuShareAppMessage({
+								title: wx_title,
+								desc: wx_desc,
+								link: share_url,
+								imgUrl: WEIXIN_IMG_COVER
+							});
+
+							// QQ
+							wx.onMenuShareQQ({
+								title: wx_title,
+								desc: wx_desc,
+								link: share_url,
+								imgUrl: WEIXIN_IMG_COVER
+							});
+
+							// QZone
+							wx.onMenuShareQZone({
+								title: wx_title,
+								desc: wx_desc,
+								link: share_url,
+								imgUrl: WEIXIN_IMG_COVER
+							});
+						}
+					});
+				});
+			}, 'json');
+		}
+	</script>
+	<?php } ?>
+
+    <script type='text/javascript'>
+          var _vds = _vds || [];
+          window._vds = _vds;
+          (function(){
+            _vds.push(['setAccountId', 'a8b79ac6da5a5179']);
+
+            if(G_USER_ID > 0){
+              _vds.push(['setCS1', 'wegene_uid', G_USER_ID]);
+            }
+
+            (function() {
+              var vds = document.createElement('script');
+              vds.type='text/javascript';
+              vds.async = true;
+              vds.src = ('https:' == document.location.protocol ? 'https://' : 'http://') + 'dn-growing.qbox.me/vds.js';
+              var s = document.getElementsByTagName('script')[0];
+              s.parentNode.insertBefore(vds, s);
+            })();
+          })();
+    </script>
+</body>
+</html>
