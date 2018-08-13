@@ -1,0 +1,136 @@
+<?php TPL::output('global/m/header.tpl.htm'); ?>
+
+<div id="app" class="report-dashboard active" v-cloak>
+	<div class="container">
+		<div class="pagehead common margin-bottom-10">
+			<a class="search" href="search/">
+				<i class="icon icon-search"></i>
+			</a>
+			<div class="title">
+				<h2><span class="color-blue"><?php echo $this->gene_report['name']; ?></span> 基因检测报告</h2>
+			</div>
+			<?php if ($this->gene_report) { ?>
+			<div class="report-change-box">
+                <div class="report-name">
+                    <span data-name="<?php echo $this->gene_master_report['name']; ?>"></span>
+                    <i class="icon icon-transfer-s"></i>
+                </div>
+                <div class="mask blue"></div>
+            </div>
+			<?php } ?>
+		</div>
+		<div class="mod report-topics-list">
+			<div class="mod-head">
+				<img :src="G_STATIC_URL + '/dist/new/m/prestige.svg'" alt="">
+				<h2>
+					精选报告
+				</h2>
+				<a href="" class="pull-right">如何解读</a>
+			</div>
+			<div class="mod-body">
+				<ul>
+					<li v-for="item in reportTopicList">
+						<div class="report-item">
+							<img :src="item.img_m_home_navigation" alt="" />
+							<div class="content">
+								<div class="title" v-text="item.title"></div>
+								<span>{{item.cases_count}}项报告</span>
+							</div>
+						</div>
+					</li>
+				</ul>
+			</div>
+		</div>
+		<div class="mod all-peport" v-for="item in reportList">
+			<a :href="G_BASE_URL + item.url">
+				<div class="mod-body margin-top-20">
+					<img :src="G_STATIC_URL + '/dist/svg/' + item.imgUrl" alt="" />
+					<div class="content">
+						<h2>
+							{{item.category_id}}
+							<span class="badge red" v-if="item.reportUpdate != undefined">
+								{{item.reportUpdate}}
+							</span>
+							<span class="pull-right">
+								{{item.total}} 项
+								<i class="icon icon-right"></i>
+							</span>
+						</h2>
+						<div class="desc">
+							{{item.desc}}
+						</div>
+					</div>
+				</div>
+			</a>
+		</div>
+	<?php TPL::output('block/m/sidenav.tpl.htm'); ?>
+	<?php TPL::output('block/m/controlbar.tpl.htm'); ?>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var uniqueId = '<?php echo $this->gene_master_report['unique_id']; ?>';
+
+	var app = new Vue({
+		el: '#app',
+		data: function () {
+			return {
+				reportTopicList: [],
+				reportList: [],
+				imageUrl: {
+					"全基因组专区": 'wgs.svg',
+					"祖源分析": 'ancestry.svg',
+					"运动基因": 'genefit.svg',
+					"营养代谢": 'metabolic.svg',
+					"健康风险": 'health.svg',
+					"遗传性疾病": 'disease.svg',
+					"药物指南": 'drug_2.svg',
+					"遗传特征": 'heredity.svg',
+					"皮肤特性": 'skin.svg',
+					"第三方解读": 'crowdsourcing.svg'
+				}
+			}
+		},
+		created: function ()
+		{
+			var _this = this;
+			
+			// 获取精选报告列表
+			$.get(G_BASE_URL + '/report2/ajax/get_report_topics_lists/',
+    		function (result)
+    		{
+    			if (result.errno == 1)
+    			{
+    				_this.reportTopicList = result.rsm;
+    			}
+    		}, 'json');
+
+			// 获取报告列表信息
+    		$.get(G_BASE_URL + '/report2/ajax/get_report_info/?unique_id=' + uniqueId, function (result)
+			{
+				if (result.errno == 1)
+				{
+		    		var reportList = result.rsm;
+
+		    		// 获取更新红点数据
+					$.get(G_BASE_URL + '/account/ajax/get_reddots_by_uid/?tags=', function (result)
+					{
+						if (result.errno == 1)
+		    			{
+		    				var reportUpdate = result.rsm.REPORT_UPDATE;
+							for (var i = 0; i < reportList.length; i++)
+							{
+								reportList[i].reportUpdate = reportUpdate[reportList[i].category_id];
+								reportList[i].imgUrl = _this.imageUrl[reportList[i].category_id];
+							}
+		    				_this.reportList = reportList;
+						}
+					},'json');
+				}
+			},'json');
+		},
+		methods: {
+		}
+	});
+</script>
+<?php TPL::output('global/m/footer.tpl.htm'); ?>

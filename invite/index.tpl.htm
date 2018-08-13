@@ -1,0 +1,76 @@
+<?php TPL::output('global/header.tpl.htm'); ?>
+
+<div id="app" class="aw-container-wrap invite" v-cloak>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-3">
+				<?php TPL::output('account/setting/setting_sidebar.tpl.htm'); ?>
+			</div>
+			<div class="col-md-9">
+				<div class="mod invite-wrap">
+					<div class="mod-head">
+						<img :src="G_STATIC_URL + '/dist/new/pc/invite-bg.png'" alt="" />
+						<div class="skew-bg"></div>
+					</div>
+					<div class="mod-body">
+						<div class="share text-center">
+							<a class="btn btn-primary btn-normal" @click="copyUrl()">复制邀请链接</a>
+							<div>
+								<input type="text" readonly :value="inviteUrl" id="share_url" />
+							</div>
+							<div class="invite-box">
+								<div class="invite-content">
+									<span class="pull-left">目前累计获得</span>
+									<b class="pull-right">￥<span><?php echo $this->total_rebate_amount; ?></span></b>
+								</div>
+								<div class="invite-footer">
+									<a href="invite/detail/" class="pull-right">查看我的邀请明细 <i class="icon icon-right-s"></i></a>
+								</div>
+							</div>
+						</div>
+						<div class="desc">
+							<div class="title">
+								<h5>活动说明</h5>
+							</div>
+							<div class="content">
+								<p>
+									邀请好友购买 WeGene 检测标准版，购买者可享受 ￥100.00 优惠，检测成功后（生成报告），邀请人还可以获得 ￥49.00 返现（可提现至银行储蓄卡）。<br /><br />
+									邀请好友购买 WeGene 全基因组测序菁英版，购买者可享受 ￥500.00 优惠，检测成功后（生成报告），邀请人还可以获得 ￥100.00 返现（可提现至银行储蓄卡）。<br /><br />
+									邀请好友购买 WeGene 全基因组测序旗舰版，购买者可享受 ￥1000.00 优惠，检测成功后（生成报告），邀请人还可以获得 ￥100.00 返现（可提现至银行储蓄卡）。<br /><br />
+									账号需绑定 WeGene 检测报告（仅限 WeGene 检测标准版、全基因组测序菁英版、全基因组测序旗舰版）才可提现，每次最低提现 50 元。<br /><br />
+									禁止将本活动二维码和邀请链接发布在包括并不限于官网、微博等微基因官方渠道。<br /><br />
+									禁止将本活动二维码和邀请链接在任何电商平台进行公开售卖。<br /><br />
+									本活动仅限个人用户参与，返利优惠购买的产品不可二次转售。<br /><br />
+									本活动最终解释权归微基因所有。
+								</p>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="<?php echo G_STATIC_URL; ?>/js/jquery.number.min.js"></script>
+<script type="text/javascript">
+	var inviteUrl = '<?php echo $this->user_invite_url; ?>';
+	var app = new Vue({
+		el: '#app',
+		data: function ()
+		{
+			return {
+				inviteUrl: inviteUrl
+			}
+		},
+		methods: {
+			copyUrl: function ()
+			{
+				var url = document.querySelector('#share_url');
+		   		url.select();
+		    	document.execCommand("Copy");
+			}
+		},
+	});
+</script>
+<?php TPL::output('global/footer.tpl.htm'); ?>

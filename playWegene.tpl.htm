@@ -1,0 +1,136 @@
+<template id="playWegene">
+	<div class="mod play-wegene margin-bottom-30">
+		<div class="mod-head">
+			<h2>
+				玩转 WeGene
+			</h2>
+		</div>
+		<div class="mod-body">
+			<div class="play-item-list" :style="'width: ' + playListLength + 'px; margin-left: ' + playListMove + 'px'">
+				<div class="play-item" v-for="item in list">
+					<a :href="item.link">
+						<div class="title" v-html="item.title"></div>
+						<img :src="item.image_pc" alt="" />
+						<div class="desc" :style="'background: ' + item.color">
+							{{item.desc}}
+						</div>
+					</a>
+				</div>
+			</div>
+			<div class="content-change text-center" v-if="list.length > 3">
+				<i class="icon icon-left-s" :class='{disable: playListMove == 0}' @click="itemMoveSub();"></i>
+				<i class="icon icon-right-s" :class='{disable: (this.boxWidth * 3 - this.playListMove) == playListLength}' @click="itemMoveAdd();"></i>
+			</div>
+		</div>
+	</div>
+</template>
+<script>
+	Vue.component('playWegene',{
+		template: '#playWegene',
+		data: function()
+		{
+			return {
+				list: [],
+                defaultList: [],
+                randomValue: 0,
+				boxWidth: 226,
+				playListMove: 0
+			}
+		},
+		created: function ()
+		{
+			var _this = this;
+
+			$.get(G_BASE_URL + '/contents/ajax/fun/get_list/', function (result)
+            {
+                if (result.errno == 1)
+                {
+                    var list = result.rsm;
+
+                    list.forEach(function (item, index)
+                    {
+                        item.random = [parseFloat(_this.randomValue), parseFloat(_this.randomValue) + parseFloat(item.sort_rank)];
+
+                        _this.randomValue = parseFloat(_this.randomValue) + parseFloat(item.sort_rank);
+                    });
+
+                    _this.defaultList = list;
+
+                    _this.randomList();
+                }
+            }, 'json');
+		},
+		computed: {
+			playListLength: function ()
+			{
+				return this.boxWidth * this.list.length;
+			}
+		},
+		methods: {
+            randomList: function ()
+            {
+                var _this = this;
+
+                while (this.list.length < this.defaultList.length)
+                {
+                    var num = this.randomNum(0, this.defaultList[this.defaultList.length - 1].random[1]);
+                    this.defaultList.forEach(function (item, index)
+                    {
+                        if (num > item.random[0] && num <= item.random[1])
+                        {
+                            // 去重
+                            if (_this.list.length > 0)
+                            {
+                                var flag = false;
+
+                                _this.list.forEach(function (item2, index2)
+                                {
+                                    if (item2.title == item.title)
+                                    {
+                                        flag = true;
+
+                                        return;
+                                    }
+                                });
+
+                                if (!flag)
+                                {
+                                    _this.list.push(item);
+                                }
+                            }
+                            else
+                            {
+                                _this.list.push(item);
+                            }
+                        }
+                    });
+                }
+            },
+			randomNum: function (Min, Max) 
+            {
+                var Range = Max - Min;
+                var Rand = Math.random();
+                if (Math.round(Rand * Range) == 0)
+                {       
+                    return Min + 1;
+                }
+                var num = Min + Rand * Range;
+                return num.toFixed(2);
+            },
+			itemMoveAdd: function () {
+				if (this.boxWidth * 3 - this.playListMove == this.playListLength)
+				{
+					return;
+				}
+				this.playListMove -= this.boxWidth;
+			},
+			itemMoveSub: function () {
+				if (this.playListMove == 0)
+				{
+					return;
+				}
+				this.playListMove += this.boxWidth;
+			}
+		}
+	})
+</script>

@@ -1,0 +1,151 @@
+<?php TPL::output('global/header.tpl.htm'); ?>
+
+<div id="app" class="aw-container-wrap invite">
+	<div class="container">
+		<div class="row">
+			<div class="col-md-3">
+				<?php TPL::output('account/setting/setting_sidebar.tpl.htm'); ?>
+			</div>
+			<div class="col-md-9">
+				<div class="mod detail-wrap">
+					<div class="mod-head">
+						<div class="mod-head">
+							<a href="invite/">
+								<i class="icon icon-left-s"></i>
+								<span class="color-666">返回邀请</span>
+							</a>
+						</div>
+					</div>
+					<div class="mod-body">
+						<h2>邀请明细</h2>
+						<div class="total">
+							<div>累计获得：<b>￥<span><?php echo $this->total_rebate_amount; ?></span></b></div>
+							<ul>
+								<li>检测标准版：<span>￥<?php echo $this->total_rebate_amount_product_3; ?></span></li>
+								<li>全基因组测序旗舰版：<span>￥<?php echo $this->total_rebate_amount_product_13; ?></span></li>
+								<li>全基因组测序菁英版：<span>￥<?php echo $this->total_rebate_amount_product_4; ?></span></li>
+							</ul>
+						</div>
+						<div class="content">
+							<div class="item">
+								<div class="title">
+									WeGene 检测标准版
+									<span class="pull-right">每份返利 ￥<?php echo $this->product_info_3['rebate_amount']; ?></span>
+								</div>
+								<ul>
+									<li>
+										<i class="icon icon-cart"></i>
+										<span>成功购买</span>
+										<span class="pull-right"><?php echo ($this->received_count_product_3 + $this->sequencing_count_product_3 +  $this->finished_count_product_3); ?> 份</span>
+									</li>
+									<li>
+										<i class="icon icon-time"></i>
+										<span>等待检测</span>
+										<span class="pull-right"><?php echo $this->received_count_product_3; ?> 份</span>
+									</li>
+									<li>
+										<i class="icon icon-flask"></i>
+										<span>正在检测</span>
+										<span class="pull-right"><?php echo $this->sequencing_count_product_3; ?> 份</span>
+									</li>
+									<li>
+										<i class="icon icon-order"></i>
+										<span>完成检测</span>
+										<span class="pull-right"><?php echo $this->finished_count_product_3; ?> 份</span>
+									</li>
+									<li>
+										<i class="icon">￥</i>
+										<span>获得返现</span>
+										<span class="pull-right"><b>￥<?php echo $this->total_rebate_amount_product_3; ?></b></span>
+									</li>
+								</ul>
+							</div>
+							<div class="item">
+								<div class="title">
+									WeGene 全基因组测序菁英版
+									<span class="pull-right">每份返利 ￥<?php echo $this->product_info_13['rebate_amount']; ?></span>
+								</div>
+								<ul>
+									<li>
+										<i class="icon icon-cart"></i>
+										<span>成功购买</span>
+										<span class="pull-right"><?php echo ($this->received_count_product_13 + $this->sequencing_count_product_13 +  $this->finished_count_product_13); ?> 份</span>
+									</li>
+									<li>
+										<i class="icon icon-time"></i>
+										<span>等待检测</span>
+										<span class="pull-right"><?php echo $this->received_count_product_13; ?> 份</span>
+									</li>
+									<li>
+										<i class="icon icon-flask"></i>
+										<span>正在检测</span>
+										<span class="pull-right"><?php echo $this->sequencing_count_product_13; ?> 份</span>
+									</li>
+									<li>
+										<i class="icon icon-order"></i>
+										<span>完成检测</span>
+										<span class="pull-right"><?php echo $this->finished_count_product_13; ?> 份</span>
+									</li>
+									<li>
+										<i class="icon">￥</i>
+										<span>获得返现</span>
+										<span class="pull-right"><b>￥ <?php echo $this->total_rebate_amount_product_13; ?></b></span>
+									</li>
+								</ul>
+							</div>
+							<div class="item">
+								<div class="title">
+									WeGene 全基因组测序旗舰版
+									<span class="pull-right">每份返利 ￥<?php echo $this->product_info_4['rebate_amount']; ?></span>
+								</div>
+								<ul>
+									<li>
+										<i class="icon icon-cart"></i>
+										<span>成功购买</span>
+										<span class="pull-right"><?php echo ($this->received_count_product_4 + $this->sequencing_count_product_4 +  $this->finished_count_product_4); ?> 份</span>
+									</li>
+									<li>
+										<i class="icon icon-time"></i>
+										<span>等待检测</span>
+										<span class="pull-right"><?php echo $this->received_count_product_4; ?> 份</span>
+									</li>
+									<li>
+										<i class="icon icon-flask"></i>
+										<span>正在检测</span>
+										<span class="pull-right"><?php echo $this->sequencing_count_product_4; ?> 份</span>
+									</li>
+									<li>
+										<i class="icon icon-order"></i>
+										<span>完成检测</span>
+										<span class="pull-right"><?php echo $this->finished_count_product_4; ?> 份</span>
+									</li>
+									<li>
+										<i class="icon">￥</i>
+										<span>获得返现</span>
+										<span class="pull-right"><b>￥ <?php echo $this->total_rebate_amount_product_4; ?></b></span>
+									</li>
+								</ul>
+							</div>
+							<div class="title margin-bottom-30">
+								返现说明
+							</div>
+							<div class="desc">
+								<p>
+									1. 购买人完成检测后方可获取返现。
+								</p>
+								<p>
+									2. 返现金额可提现至本人银行卡。每次提现金额下限为 50 元，每次提现银行收取手续费 2 元，由用户自行承担。
+								</p>
+							</div>
+							<div class="text-center margin-bottom-20">
+								<a href="wallet/" class="btn btn-primary">查看钱包余额</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<?php TPL::output('global/footer.tpl.htm'); ?>
