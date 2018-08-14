@@ -1,0 +1,198 @@
+<?php TPL::output('global/header.tpl.htm'); ?>
+
+<div id="app" class="aw-container-wrap wallet" v-cloak>
+	<div class="container">
+		<div class="row">
+			<div class="col-md-3">
+				<?php TPL::output('account/setting/setting_sidebar.tpl.htm'); ?>
+			</div>
+			<div class="col-md-9">
+				<div class="mod addcard-wrap">
+					<div class="mod-head">
+						<a href="wallet/withdrawal/">
+							<i class="icon icon-left-s"></i>
+							<span class="color-666">返回提现</span>
+						</a>
+					</div>
+					<div class="mod-body text-center">
+						<div class="title">
+							<h4>添加银行卡</h4>
+						</div>
+						<div class="content">
+							<dl>
+								<dt>持卡人：</dt>
+								<dd>
+									<input type="text" v-if="lock" name="full_name" :value="fullName" placeholder="请填写开户姓名" disabled="disabled" />
+									<input type="text" v-else name="full_name" v-model="fullName" placeholder="请填写开户姓名" />
+								</dd>
+							</dl>
+							<dl>
+								<dt>身份证号：</dt>
+								<dd>
+									<input type="text" v-if="lock" name="identity_number" :value="shield()" disabled="disabled" />
+									<input type="text" v-else name="identity_number" v-model="identityNumber" />
+								</dd>
+							</dl>
+							<dl>
+								<dt>银行名称：</dt>
+								<dd>
+									<select name="bank_name" v-model="bankName">
+										<option value=""></option>
+										<?php foreach ($this->bank_list AS $k => $v) { ?>
+											<option value="<?php echo $v; ?>"><?php echo $k; ?></option>
+										<?php } ?>
+									</select>
+								</dd>
+							</dl>
+							<dl>
+								<dt>银行账号：</dt>
+								<dd>
+									<input type="text" name="bank_account" v-model="bankAccount" placeholder="请填写常用银行储蓄卡卡号" />
+								</dd>
+							</dl>
+							<dl>
+								<dt>手机号码：</dt>
+								<dd>
+									<input type="text" name="phone_number" v-model="phoneNumber" placeholder="银行预留的手机号" />
+								</dd>
+							</dl>
+							<dl class="checkCode">
+								<dt>验证码：</dt>
+								<dd>
+									<input type="text" name="sms_verify_code" v-model="smsVerifyCode"/>
+									<a type="button" v-if="checkCode" class="btn btn-primary" @click="getCode()">获取验证码</a>
+									<a type="button" v-else class="btn btn-primary disabled">{{num}}s</a>
+								</dd>
+							</dl>
+							<label> <input name="accept_agreement" type="radio" @click="protocol = false">同意并接受</label><a class="font-size-12" href="wallet/bank_agreement/">银行卡提现协议</a>
+
+							<div class="text-center margin-top-30">
+								<a class="btn btn-primary btn-normal" :class="{disabled: protocol}" @click="addCard()">添加</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="<?php echo G_STATIC_URL; ?>/js/jquery.number.min.js"></script>
+<script type="text/javascript">
+
+var identity_number = '<?php echo ($this->wallet_info['identity_number']); ?>';
+var cardholder = '<?php echo ($this->wallet_info['full_name']); ?>';
+
+var app = new Vue({
+	el: '#app',
+	data: function ()
+	{
+		return {
+			fullName: '',
+			identityNumber: '',
+			lock: false,
+			bankName: '',
+			phoneNumber: '',
+			bankAccount: '',
+			smsVerifyCode: '',
+			num: 60,
+			protocol: true,
+			checkCode: true
+		}
+	},
+	created: function () 
+	{
+		if (identity_number)
+		{
+			this.fullName = cardholder;
+			this.identityNumber = identity_number;
+			this.lock = true;
+		}
+	},
+	computed: {
+
+	},
+	methods: {
+		shield : function ()
+		{
+			if (this.lock)
+			{
+				var len = this.identityNumber.length - 8,
+					shield = '';
+
+					for (var i = 0; i < len; i++)
+					{
+						shield += '*';
+					}
+
+				return this.identityNumber.substring(0,4) + shield + this.identityNumber.slice(-4);
+			}
+		},
+		getCode: function ()
+		{
+			var _this = this,
+				code_interval;
+
+			if (this.phoneNumber.length == 11)
+			{
+				$.post(G_BASE_URL + '/wallet/ajax/get_sms_verify_code/',
+				{
+					phone_number: this.phoneNumber
+				},
+				function (result)
+				{
+					if (result.errno == 1)
+					{
+						_this.checkCode = false;
+						code_interval = setInterval(function ()
+						{
+							if (_this.num <= 1)
+							{
+								clearInterval(code_interval);
+								_this.num = 60;
+								_this.checkCode = true;
+							}
+							else
+							{
+								_this.num--;
+							}
+						}, 1000);
+					}
+					else if (result.errno == -1)
+					{
+						AWS.alert(result.err);
+					}
+				}, 'json');
+			}
+			else
+			{
+				AWS.alert('手机号码格式不正确');
+			}
+		},
+		addCard: function ()
+		{
+			$.post(G_BASE_URL + '/wallet/ajax/addcard/',
+			{
+				full_name: this.fullName,
+				identity_number: this.identityNumber,
+				bank_name: this.bankName,
+				bank_account: this.bankAccount,
+				phone_number: this.phoneNumber,
+				sms_verify_code: this.smsVerifyCode
+			},
+			function(result){
+				if (result.errno == 1)
+				{
+					window.location.href = G_BASE_URL + '/wallet/withdrawal/';
+				}
+				else
+				{
+					AWS.alert(result.err);
+				}
+			},
+			'json');
+		}
+	}
+});
+</script>
+<?php TPL::output('global/footer.tpl.htm'); ?>

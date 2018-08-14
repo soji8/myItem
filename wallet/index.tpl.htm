@@ -1,0 +1,115 @@
+<?php TPL::output('global/header.tpl.htm'); ?>
+
+<div id="app" class="wallet" v-cloak>
+	<div class="aw-container-wrap">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-3">
+					<?php TPL::output('account/setting/setting_sidebar.tpl.htm'); ?>
+				</div>
+				<div class="col-md-9">
+					<div class="mod wallet-wrap">
+						<div class="mod-head pagehead color-fff text-center">
+							账户余额
+							<div>￥ {{balance}}</div>
+							<img class="sbs" width="110%" src="<?php echo G_STATIC_URL; ?>/dist/img/sbg-11.svg" alt="" />
+							<a class="btn" @click="withdrawal()">提现</a>
+						</div>
+						<div class="mod-body">
+							<h4>账户明细</h4>
+							<ul class="wallet-record clearfix">
+								<li v-for="item in walletLog">
+									<p>{{item.description}}</p>
+									<span>{{item.time}}</span>
+									<span v-if="item.status == 'PENDING'" class="active">提现中...</span>
+									<span v-if="item.status == 'FAILED'" class="error">提现失败</span>
+									<b v-bind:class="{ 'text-error': item.status == 'FAILED'}"><em v-if="item.changes<0">-</em><em v-else>+</em> ¥ {{Math.abs(item.changes)}}</b>
+								</li>
+							</ul>
+							<div class="margin-top-20 margin-bottom-20 text-center">
+								<a class="load-more-content" v-if="loadMoreFlag" @click="loadMore()">更多</a>
+								<span class="color-999" v-else>没有更多了</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="<?php echo G_STATIC_URL; ?>/js/jquery.number.min.js"></script>
+<script type="text/javascript">
+var app = new Vue({
+	el: '#app',
+	data: function ()
+	{
+		return {
+			balance: '<?php echo $this->wallet_info['balance']; ?>',
+			walletLog: [],
+			page: 1,
+			loadMoreFlag: false,
+			isWegeneUser: <?php if ($this->is_wegene_user) { ?>true<?php } else { ?>false<?php } ?>,
+			withdrawalAmountMinimum: <?php echo AWS_APP::config()->get('wallet')->withdrawal_amount_minimum; ?>
+		}
+	},
+	created: function ()
+	{
+		this.loadMore();
+	},
+	methods: {
+		loadMore: function ()
+		{
+			var _this = this;
+
+			this.page++;
+
+			AWS.loading('show', true);
+
+			$.get(G_BASE_URL + '/wallet/ajax/get_statement/?page=' + this.page,
+			function(result)
+			{
+				if (result.error == 1)
+				{
+					AWS.loading('hide', true);
+
+					if (result.rsm.length > 0)
+					{
+						_this.walletLog = _this.walletLog + result.rsm;
+					}
+					else
+					{
+						_this.loadMoreFlag = false;
+					}
+				}
+			});
+		},
+		withdrawal: function ()
+		{
+			if (this.isWegeneUser)
+			{
+				if (this.balance >= this.withdrawalAmountMinimum)
+				{
+					window.location.href = G_BASE_URL + '/wallet/withdrawal/';
+				}
+				else
+				{
+					AWS.tips('error','余额不足' + this.withdrawalAmountMinimum + '元，无法提现。');
+				}
+			}
+			else
+			{
+				AWS.dialog('tips', 
+				{
+					title: '无法提现',
+					message: `<p class="text-center margin-bottom-20">需要绑定 WeGene 套件，才可使用提现功能。</p>
+					<div class="text-center margin-bottom-10">
+						<a class="btn btn-primary" href="shop/">立即购买</a>
+					</div>
+				`});
+			}
+		}
+	}
+});
+</script>
+<?php TPL::output('global/footer.tpl.htm'); ?>

@@ -246,6 +246,7 @@ function search_click(el)
 	});
 }
 
+// 下拉菜单click
 function dropdown_click(el, target, parent)
 {
 	$(el).on('click', function ()
@@ -269,6 +270,7 @@ function dropdown_click(el, target, parent)
 	});
 }
 
+// 下拉菜单hover
 function dropdown_hover(parent, el, target)
 {
 	dropdown_enter(parent, el, target);
@@ -405,6 +407,7 @@ function menu_move()
 		}
 	}
 
+	// 标题背景移动
 	function article_click()
 	{
 		count = $(this).parents('li').index();

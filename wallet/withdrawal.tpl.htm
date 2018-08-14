@@ -1,0 +1,135 @@
+<?php TPL::output('global/header.tpl.htm'); ?>
+
+<div id="app" class="wallet" v-cloak>
+	<div class="aw-container-wrap">
+		<div class="container">
+			<div class="row">
+				<div class="col-md-3">
+					<?php TPL::output('account/setting/setting_sidebar.tpl.htm'); ?>
+				</div>
+				<div class="col-md-9">
+					<div class="mod apply-wrap">
+						<div class="mod-head">
+							<a href="wallet/">
+								<i class="icon icon-left-s"></i>
+								<span class="color-666">返回钱包</span>
+							</a>
+						</div>
+						<div class="mod-body text-center">
+							<div class="title">
+								<h4>发起提现申请</h4>
+							</div>
+							<div class="content">
+								<dl>
+									<dt>到账银行卡：</dt>
+									<dd>
+										<a v-if="!cardName" @click="changeCard()">添加银行卡</a>
+										<span v-else>{{cardName}} ({{cardId}})<a class="pull-right" @click="changeCard()">更换</a></span>
+
+									</dd>
+								</dl>
+								<dl class="margin-bottom-10">
+									<dt>提现金额：</dt>
+									<dd class="apply-input" :class="{'color-red': parseFloat(amount) < parseFloat(amountNum) || parseFloat(amount) > parseFloat(balance) || amount == ''}">
+										<span>￥</span>
+										<input type="number" v-model="amount" />
+									</dd>
+								</dl>
+								<dl>
+									<dt></dt>
+									<dd>
+										<p>余额 ¥{{balance}} <a @click="amount = parseFloat(balance)">全部提现</a></p>
+										<p>
+											预计2小时内到账。每次提现需额外扣除 {{withdrawalFee}} 元手续费用（直接从提现总额中扣除），每次提现下限为 {{amountNum}} 元。
+										</p>
+									</dd>
+								</dl>
+								<div class="text-center margin-top-30">
+									<a class="btn btn-primary btn-normal" :class="{disabled: parseFloat(amount) < parseFloat(amountNum) || parseFloat(amount) > parseFloat(balance) || cardName == ''}" @click="getCash();">确定</a>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script src="<?php echo G_STATIC_URL; ?>/js/jquery.number.min.js"></script>
+<script type="text/javascript">
+
+	<?php if ($this->user_bank_cards) { ?>;
+		var G_USER_BANK_CARDS = <?php echo json_encode($this->user_bank_cards); ?>;
+	<?php } else { ?>;
+		var G_USER_BANK_CARDS = [];
+	<?php } ?>;
+
+	var app = new Vue({
+		el: '#app',
+		data: function ()
+		{
+			return {
+				withdrawalFee: '<?php echo AWS_APP::config()->get('wallet')->withdrawal_fee; ?>',
+				balance: '<?php echo $this->wallet_info['balance']; ?>',
+				amount: '',
+				cardName: '',
+				cardId: '',
+				amountNum: "<?php echo AWS_APP::config()->get('wallet')->withdrawal_amount_minimum; ?>"
+			}
+		},
+		created: function ()
+		{
+			if (G_USER_BANK_CARDS.length > 0)
+			{
+				this.cardId = G_USER_BANK_CARDS[0].card_id;
+				this.cardName = G_USER_BANK_CARDS[0].card_name;
+			}
+		},
+		methods: {
+			getCash: function ()
+			{
+				var _this = this;
+				var message = '请确认提现￥' + this.amount + '元至' + this.cardName + '（银行卡号号：' + this.cardId + '）银行卡中，每次提现会扣除￥' + this.withdrawalFee + '手续费用（直接从提现总额中扣除），确认后将无法撤回。';
+
+				AWS.dialog('confirm', {'title': '确认提现','message': message},
+				function ()
+				{
+					AWS.loading('show', true);
+					$.post(G_BASE_URL + '/wallet/ajax/withdrawal/',
+					{
+						bank_card_id: this.cardId,
+						amount: this.amount - this.withdrawalFee
+					}, function (result)
+					{
+						AWS.loading('hide', true);
+						if (result.errno == 1)
+						{
+							AWS.tips('success', '已顺利提交', function (){
+								window.location.href = result.rsm.url;
+							});
+						}
+						else if (result.errno == -1)
+						{
+							AWS.alert(result.err);
+						}
+
+					}, 'json').error(function (error)
+					{
+						if ($.trim(error.responseText) != '')
+			            {
+			            	AWS.loading('hide', true);
+
+			                alert(_t('发生错误, 返回的信息:') + ' ' + error.responseText);
+			            }
+					});
+				});
+			},
+			changeCard: function ()
+			{
+				AWS.dialog('card', {'list': G_USER_BANK_CARDS, url: G_STATIC_URL + '/dist/new/pc/bank.svg'});
+			}
+		}
+	});
+</script>
+<?php TPL::output('global/footer.tpl.htm'); ?>
